@@ -1,0 +1,870 @@
+<html><head><base href="https://example.com/repair-service/" />
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+  :root {
+    --primary-color: #00bcd4;
+    --primary-light: #62efff;
+    --primary-dark: #008ba3;
+    --secondary-color: #ff4081;
+    --secondary-light: #ff79b0;
+    --secondary-dark: #c60055;
+    --background-color: #121212;
+    --surface-color: #1e1e1e;
+    --error-color: #cf6679;
+    --text-primary: rgba(255, 255, 255, 0.87);
+    --text-secondary: rgba(255, 255, 255, 0.60);
+    --text-disabled: rgba(255, 255, 255, 0.38);
+  }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background-color);
+    color: var(--text-primary);
+    display: flex;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .app-bar {
+    background-color: var(--surface-color);
+    color: var(--text-primary);
+    padding: 16px;
+    box-shadow: 0 4px 6px rgba(0,0,0,.2);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  .app-bar h1 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+  }
+
+  .menu-icon {
+    margin-right: 16px;
+    cursor: pointer;
+  }
+
+  .vertical-menu {
+    width: 240px;
+    background-color: var(--surface-color);
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 56px;
+    overflow-y: auto;
+    transition: transform 0.3s ease, width 0.3s ease;
+    box-shadow: 2px 0 4px rgba(0,0,0,.2);
+    z-index: 100;
+  }
+
+  .vertical-menu.collapsed {
+    width: 56px;
+  }
+
+  .vertical-menu a {
+    display: flex;
+    align-items: center;
+    color: var(--text-primary);
+    padding: 16px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .vertical-menu a:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .vertical-menu a.active {
+    background-color: rgba(0, 188, 212, 0.12);
+    color: var(--primary-color);
+  }
+
+  .vertical-menu a .material-icons {
+    margin-right: 32px;
+  }
+
+  .vertical-menu.collapsed a .material-icons {
+    margin-right: 0;
+  }
+
+  .vertical-menu.collapsed a span:not(.material-icons) {
+    display: none;
+  }
+
+  .content {
+    margin-left: 240px;
+    padding: 24px;
+    padding-top: 80px;
+    transition: margin-left 0.3s ease;
+  }
+
+  .content.expanded {
+    margin-left: 56px;
+  }
+
+  .tab {
+    display: none;
+  }
+
+  .tab.active {
+    display: block;
+  }
+
+  .card {
+    background-color: var(--surface-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,.2);
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  h2 {
+    color: var(--text-primary);
+    font-weight: 400;
+    margin-top: 0;
+    margin-bottom: 16px;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 16px;
+  }
+
+  .form-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  label {
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: 14px;
+  }
+
+  input, select, textarea {
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+    font-size: 16px;
+    background-color: #2c2c2c; /* Измененный цвет фона для выпадающих меню */
+    color: var(--text-primary);
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 188, 212, 0.2);
+  }
+
+  button {
+    background-color: var(--primary-color);
+    color: #000;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  button:hover {
+    background-color: var(--primary-light);
+    box-shadow: 0 2px 4px rgba(0,0,0,.2);
+  }
+
+  button .material-icons {
+    margin-right: 8px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: var(--surface-color);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,.2);
+  }
+
+  th, td {
+    text-align: left;
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  th {
+    background-color: var(--primary-dark);
+    color: #000;
+    font-weight: 500;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .status-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+    border-radius: 16px;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  tr.status-accepted {
+    background-color: rgba(0, 188, 212, 0.08);
+  }
+
+  tr.status-transferred {
+    background-color: rgba(255, 152, 0, 0.08);
+  }
+
+  tr.status-completed {
+    background-color: rgba(76, 175, 80, 0.08);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background-color: var(--surface-color);
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 4px 6px rgba(0,0,0,.2);
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .stat-value {
+    font-size: 36px;
+    font-weight: 500;
+    color: var(--primary-color);
+    margin-bottom: 8px;
+  }
+
+  .stat-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .chart-container {
+    background-color: var(--surface-color);
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 4px 6px rgba(0,0,0,.2);
+    margin-bottom: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  #device-type-chart, #status-chart {
+    width: 100%;
+    height: 300px;
+  }
+
+  @media (max-width: 768px) {
+    .vertical-menu {
+      transform: translateX(-240px);
+    }
+
+    .vertical-menu.visible {
+      transform: translateX(0);
+    }
+
+    .content {
+      margin-left: 0;
+      padding: 16px;
+      padding-top: 72px;
+    }
+
+    .form-row {
+      flex-direction: column;
+    }
+
+    .button-group {
+      flex-direction: column;
+    }
+
+    .stat-card {
+      padding: 16px;
+    }
+
+    .chart-container {
+      padding: 16px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header class="app-bar">
+  <i class="material-icons menu-icon" id="menu-toggle">menu</i>
+  <h1>Система управления рекламациями</h1>
+</header>
+
+<nav class="vertical-menu" id="vertical-menu">
+  <a href="#" class="active" data-tab="registration">
+    <i class="material-icons">add_circle</i><span>Регистрация рекламаций</span>
+  </a>
+  <a href="#" data-tab="summary">
+    <i class="material-icons">list_alt</i><span>Сводная таблица</span>
+  </a>
+  <a href="#" data-tab="statistics">
+    <i class="material-icons">bar_chart</i><span>Статистика</span>
+  </a>
+</nav>
+
+<div class="content" id="content">
+  <div id="registration" class="tab active">
+    <div class="card">
+      <h2>Регистрация рекламаций</h2>
+      <form id="repair-form" action="https://example.com/repair-service/submit" method="post">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="address">ЖК/Улица:</label>
+            <textarea id="address" name="address" rows="2" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="apartment">Кв.:</label>
+            <input type="text" id="apartment" name="apartment" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">ФИО:</label>
+            <textarea id="name" name="name" rows="2" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="letter-number">Номер письма:</label>
+            <input type="text" id="letter-number" name="letter-number" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="device-type">Тип устройства:</label>
+            <select id="device-type" name="device-type" required>
+              <option value="">Выберите тип устройства</option>
+              <option value="ХВС">ХВС</option>
+              <option value="ГВС">ГВС</option>
+              <option value="Теплосчетчик">Теплосчетчик</option>
+              <option value="Электросчетчик">Электросчетчик</option>
+              <option value="Прочее">Прочее</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="serial-number">С/н:</label>
+            <input type="text" id="serial-number" name="serial-number" placeholder="Введите серийный номер" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="curator">Куратор/Исполнитель от СЭТЛ:</label>
+            <div class="curator-container">
+              <select id="curator-select">
+                <option value="">Выберите куратора</option>
+              </select>
+              <button type="button" id="add-curator">
+                <i class="material-icons">person_add</i>Добавить
+              </button>
+            </div>
+            <textarea id="curator" name="curator" rows="2" required></textarea>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="note">Примечание:</label>
+          <textarea id="note" name="note" rows="3" placeholder="Введите дополнительную информацию"></textarea>
+        </div>
+        <button type="submit">
+          <i class="material-icons">add_circle</i>Принять рекламацию
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <div id="summary" class="tab">
+    <div class="card">
+      <h2>Сводная таблица рекламаций</h2>
+      <table id="claims-table">
+        <thead>
+          <tr>
+            <th>№</th>
+            <th>ЖК/Улица</th>
+            <th>Кв.</th>
+            <th>ФИО</th>
+            <th>Номер письма</th>
+            <th>Тип устройства / С/н</th>
+            <th>Куратор/Исполнитель</th>
+            <th>Примечание</th>
+            <th>Статус</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Данные будут добавляться сюда динамически -->
+        </tbody>
+      </table>
+      <div class="button-group">
+        <button id="export-btn">
+          <i class="material-icons">file_download</i>Выгрузить в .xls
+        </button>
+        <button id="copy-btn">
+          <i class="material-icons">content_copy</i>Скопировать таблицу
+        </button>
+        <button id="clear-btn">
+          <i class="material-icons">delete</i>Очистить таблицу
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="statistics" class="tab">
+    <div class="card">
+      <h2>Статистика рекламаций</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="total-claims">0</div>
+          <div class="stat-label">Всего рекламаций</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="accepted-claims">0</div>
+          <div class="stat-label">Принято</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="transferred-claims">0</div>
+          <div class="stat-label">Передано подрядчику</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="completed-claims">0</div>
+          <div class="stat-label">Выполнено</div>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="device-type-chart"></canvas>
+      </div>
+      <div class="chart-container">
+        <canvas id="status-chart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+<script>
+// Функция для сохранения данных в localStorage
+function saveData() {
+  const tableData = [];
+  const rows = document.getElementById('claims-table').getElementsByTagName('tbody')[0].rows;
+  for (let row of rows) {
+    const rowData = {
+      number: row.cells[0].textContent,
+      address: row.cells[1].textContent,
+      apartment: row.cells[2].textContent,
+      name: row.cells[3].textContent,
+      letterNumber: row.cells[4].textContent,
+      deviceTypeAndSerial: row.cells[5].textContent,
+      curator: row.cells[6].textContent,
+      note: row.cells[7].textContent,
+      status: row.cells[8].querySelector('button').textContent,
+      statusClass: row.className,
+      dateAdded: row.dataset.dateAdded
+    };
+    tableData.push(rowData);
+  }
+  localStorage.setItem('claimsTableData', JSON.stringify(tableData));
+  updateStatistics();
+}
+
+// Функция для загрузки данных из localStorage
+function loadData() {
+  const savedData = localStorage.getItem('claimsTableData');
+  if (savedData) {
+    const tableData = JSON.parse(savedData);
+    tableData.forEach((rowData, index) => {
+      rowData.number = index + 1;
+      addRowToTable(rowData);
+    });
+    updateCuratorSelect();
+    updateStatistics();
+  }
+}
+
+document.getElementById('repair-form').addEventListener('submit', function(e) {
+  e.preventDefault();
+  
+  const formData = new FormData(this);
+  const currentDate = new Date().toLocaleString('ru-RU');
+  const tableData = {
+    number: document.getElementById('claims-table').getElementsByTagName('tbody')[0].rows.length + 1,
+    address: formData.get('address'),
+    apartment: formData.get('apartment'),
+    name: formData.get('name'),
+    letterNumber: formData.get('letter-number'),
+    deviceTypeAndSerial: `${formData.get('device-type')} / ${formData.get('serial-number')}`,
+    curator: formData.get('curator'),
+    note: formData.get('note') + ` Принята в работу (${currentDate})`,
+    status: 'Принята',
+    statusClass: 'status-accepted',
+    dateAdded: currentDate
+  };
+
+  addRowToTable(tableData);
+  updateCuratorSelect();
+  saveData();
+
+  alert('Спасибо! Рекламация принята и добавлена в сводную таблицу.');
+  this.reset();
+});
+
+function addRowToTable(data) {
+  const table = document.getElementById('claims-table').getElementsByTagName('tbody')[0];
+  const newRow = table.insertRow();
+  newRow.className = data.statusClass;
+  newRow.dataset.dateAdded = data.dateAdded;
+  
+  const cellOrder = ['number', 'address', 'apartment', 'name', 'letterNumber', 'deviceTypeAndSerial', 'curator', 'note'];
+  
+  cellOrder.forEach(key => {
+    const cell = newRow.insertCell();
+    cell.textContent = data[key];
+  });
+
+  const statusCell = newRow.insertCell();
+  const statusBtn = document.createElement('button');
+  statusBtn.textContent = data.status || 'Принята';
+  statusBtn.className = 'status-btn';
+  statusBtn.onclick = function() {
+    cycleStatus(this);
+    saveData();
+  };
+  statusCell.appendChild(statusBtn);
+}
+
+function cycleStatus(btn) {
+  const statuses = ['Принята', 'Передана подрядчику', 'Выполнена'];
+  const currentStatus = btn.textContent;
+  const nextStatusIndex = (statuses.indexOf(currentStatus) + 1) % statuses.length;
+  const nextStatus = statuses[nextStatusIndex];
+  
+  btn.textContent = nextStatus;
+  const row = btn.closest('tr');
+  
+  row.classList.remove('status-accepted', 'status-transferred', 'status-completed');
+  
+  switch(nextStatus) {
+    case 'Принята':
+      row.classList.add('status-accepted');
+      break;
+    case 'Передана подрядчику':
+      row.classList.add('status-transferred');
+      break;
+    case 'Выполнена':
+      row.classList.add('status-completed');
+      break;
+  }
+}
+
+function exportToExcel() {
+  const table = document.getElementById('claims-table');
+  const wb = XLSX.utils.table_to_book(table, {sheet: "Рекламации"});
+  
+  const currentDate = new Date();
+  const day = String(currentDate.getDate()).padStart(2, '0');
+  const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+  const year = String(currentDate.getFullYear()).slice(-2);
+  const formattedDate = `${day}.${month}.${year}`;
+  
+  const fileName = `рекламации_${formattedDate}.xlsx`;
+  
+  XLSX.writeFile(wb, fileName);
+}
+
+function clearTable() {
+  if (confirm('Вы уверены, что хотите очистить все данные в таблице?')) {
+    const tableBody = document.getElementById('claims-table').getElementsByTagName('tbody')[0];
+    tableBody.innerHTML = '';
+    updateCuratorSelect();
+    localStorage.removeItem('claimsTableData');
+    updateStatistics();
+  }
+}
+
+function copyTableToClipboard() {
+  const table = document.getElementById('claims-table');
+  const range = document.createRange();
+  range.selectNode(table);
+  window.getSelection().removeAllRanges();
+  window.getSelection().addRange(range);
+  
+  try {
+    const successful = document.execCommand('copy');
+    const msg = successful ? 'Таблица успешно скопирована в буфер обмена!' : 'Не удалось скопировать таблицу.';
+    alert(msg);
+  } catch (err) {
+    console.error('Ошибка при копировании: ', err);
+    alert('Произошла ошибка при копировании таблицы.');
+  }
+  
+  window.getSelection().removeAllRanges();
+}
+
+document.getElementById('export-btn').addEventListener('click', exportToExcel);
+document.getElementById('clear-btn').addEventListener('click', clearTable);
+document.getElementById('copy-btn').addEventListener('click', copyTableToClipboard);
+
+function updateCuratorSelect() {
+  const curatorSelect = document.getElementById('curator-select');
+  const curators = new Set();
+  const rows = document.getElementById('claims-table').getElementsByTagName('tbody')[0].rows;
+
+  for (let row of rows) {
+    const curatorCell = row.cells[6];
+    if (curatorCell.textContent) {
+      curators.add(curatorCell.textContent);
+    }
+  }
+
+  curatorSelect.innerHTML = '<option value="">Выберите куратора</option>';
+
+  curators.forEach(curator => {
+    const option = document.createElement('option');
+    option.value = curator;
+    option.textContent = curator;
+    curatorSelect.appendChild(option);
+  });
+}
+
+document.getElementById('curator-select').addEventListener('change', function() {
+  const curatorTextarea = document.getElementById('curator');
+  curatorTextarea.value = this.value;
+});
+
+document.getElementById('add-curator').addEventListener('click', function() {
+  const curatorSelect = document.getElementById('curator-select');
+  const curatorTextarea = document.getElementById('curator');
+  const newCurator = curatorTextarea.value.trim();
+
+  if (newCurator && !Array.from(curatorSelect.options).some(option => option.value === newCurator)) {
+    const option = document.createElement('option');
+    option.value = newCurator;
+    option.textContent = newCurator;
+    curatorSelect.appendChild(option);
+    curatorSelect.value = newCurator;
+  }
+});
+
+// Функция для переключения вкладок
+function switchTab(tabId) {
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(tab => tab.classList.remove('active'));
+  
+  const selectedTab = document.getElementById(tabId);
+  selectedTab.classList.add('active');
+
+  const menuItems = document.querySelectorAll('.vertical-menu a');
+  menuItems.forEach(item => item.classList.remove('active'));
+  
+  const activeMenuItem = document.querySelector(`.vertical-menu a[data-tab="${tabId}"]`);
+  activeMenuItem.classList.add('active');
+
+  if (tabId === 'statistics') {
+    updateStatistics();
+  }
+}
+
+// Обработчик кликов по пунктам меню
+document.querySelectorAll('.vertical-menu a').forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    const tabId = this.getAttribute('data-tab');
+    switchTab(tabId);
+  });
+});
+
+// Функция обновления статистики
+function updateStatistics() {
+  const rows = document.getElementById('claims-table').getElementsByTagName('tbody')[0].rows;
+  let totalClaims = rows.length;
+  let acceptedClaims = 0;
+  let transferredClaims = 0;
+  let completedClaims = 0;
+  let deviceTypes = {};
+  let statusCounts = {
+    'Принята': 0,
+    'Передана подрядчику': 0,
+    'Выполнена': 0
+  };
+
+  for (let row of rows) {
+    const status = row.cells[8].querySelector('button').textContent;
+    const deviceType = row.cells[5].textContent.split(' / ')[0];
+
+    statusCounts[status]++;
+
+    if (deviceType in deviceTypes) {
+      deviceTypes[deviceType]++;
+    } else {
+      deviceTypes[deviceType] = 1;
+    }
+
+    switch (status) {
+      case 'Принята':
+        acceptedClaims++;
+        break;
+      case 'Передана подрядчику':
+        transferredClaims++;
+        break;
+      case 'Выполнена':
+        completedClaims++;
+        break;
+    }
+  }
+
+  // Обновляем значения в карточках статистики
+  document.getElementById('total-claims').textContent = totalClaims;
+  document.getElementById('accepted-claims').textContent = acceptedClaims;
+  document.getElementById('transferred-claims').textContent = transferredClaims;
+  document.getElementById('completed-claims').textContent = completedClaims;
+
+  // Обновляем круговую диаграмму типов устройств
+  updateDeviceTypeChart(deviceTypes);
+
+  // Обновляем столбчатую диаграмму статусов
+  updateStatusChart(statusCounts);
+}
+
+// Функция для создания или обновления круговой диаграммы типов устройств
+function updateDeviceTypeChart(deviceTypes) {
+  const ctx = document.getElementById('device-type-chart').getContext('2d');
+  
+  if (window.deviceTypeChart) {
+    window.deviceTypeChart.destroy();
+  }
+
+  window.deviceTypeChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: Object.keys(deviceTypes),
+      datasets: [{
+        data: Object.values(deviceTypes),
+        backgroundColor: [
+          '#00bcd4', '#ff4081', '#4caf50', '#ffc107', '#9c27b0'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      title: {
+        display: true,
+        text: 'Распределение по типам устройств',
+        fontSize: 18,
+        fontColor: '#ffffff'
+      },
+      legend: {
+        position: 'bottom',
+        labels: {
+          fontColor: '#ffffff'
+        }
+      }
+    }
+  });
+}
+
+// Функция для создания или обновления столбчатой диаграммы статусов
+function updateStatusChart(statusCounts) {
+  const ctx = document.getElementById('status-chart').getContext('2d');
+  
+  if (window.statusChart) {
+    window.statusChart.destroy();
+  }
+
+  window.statusChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: Object.keys(statusCounts),
+      datasets: [{
+        label: 'Количество рекламаций',
+        data: Object.values(statusCounts),
+        backgroundColor: [
+          '#00bcd4', '#ffc107', '#4caf50'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      title: {
+        display: true,
+        text: 'Распределение по статусам',
+        fontSize: 18,
+        fontColor: '#ffffff'
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true,
+            stepSize: 1,
+            fontColor: '#ffffff'
+          }
+        }],
+        xAxes: [{
+          ticks: {
+            fontColor: '#ffffff'
+          }
+        }]
+      },
+      legend: {
+        display: false
+      }
+    }
+  });
+}
+
+// Обработчик для переключения меню
+document.getElementById('menu-toggle').addEventListener('click', function() {
+  const menu = document.getElementById('vertical-menu');
+  const content = document.getElementById('content');
+  menu.classList.toggle('collapsed');
+  content.classList.toggle('expanded');
+});
+
+window.addEventListener('load', loadData);
+updateCuratorSelect();
+</script>
+
+</body></html>
